@@ -12,3 +12,13 @@ A performance monitor for Storm topologies.  Consists of:
   - A histogram that shows pending tuple counts (e.g. the backlog) on each stream in the topology
   - A "Share of Voice" chart that shows the pending tuple counts for a given stream for each of a component's tasks
   - A "Share of Voice" chart that shows the relative size of the backlogs on all streams for the topology
+
+
+So for this topology:
+
+![ScreenShot](https://github.com/chrisGerken/gumbo/blob/master/monitor/monitor/src/main/resources/IngesterTopology.png)
+
+
+You might see this dashboard:
+
+![ScreenShot](https://github.com/chrisGerken/gumbo/blob/master/monitor/monitor/src/main/resources/IngesterTopology.png)

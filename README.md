@@ -14,11 +14,4 @@ A performance monitor for Storm topologies.  Consists of:
   - A "Share of Voice" chart that shows the relative size of the backlogs on all streams for the topology
 
 
-So for this topology:
-
-![ScreenShot](https://github.com/chrisGerken/gumbo/blob/master/monitor/monitor/src/main/resources/IngesterTopology.png)
-
-
-You might see this dashboard:
-
-![ScreenShot](https://github.com/chrisGerken/gumbo/blob/master/monitor/monitor/src/main/resources/IngesterTopology.png)
+So for this ![topology](https://github.com/chrisGerken/gumbo/blob/master/monitor/monitor/src/main/resources/IngesterTopology.png) you might see this ![dashboard](https://github.com/chrisGerken/gumbo/blob/master/monitor/monitor/src/main/resources/Gumbo.png)

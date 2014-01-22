@@ -139,20 +139,201 @@ function legend(data,id,metricGroup) {
 			    width = len;
 		} 
 	}
-	width = width + 25;
+	width = width + 40;
 
  	var x = 10;
  	var y = 25;
 	for (var i in mg.metrics) {
 		ctxLegend.fillStyle = "rgba("+mg.metrics[i].color+",1.0)";
 		ctxLegend.fillRect(x,y-18,20,20);
+		var style = "#0000FF";
+		var trend = mg.metrics[i].trend; 
+		if (trend > 0) {
+			style = "#FF0000";
+		};
+		if (trend < 0) {
+			style = "#00FF00";
+		};
+		ctxLegend.fillStyle = style;
+		ctxLegend.beginPath();
+		ctxLegend.arc(x+31,y-8,6,0,2.0*Math.PI);
+		ctxLegend.fill();
+		ctxLegend.fill();
 		ctxLegend.fillStyle = "rgba(0,0,0,1.0)";
-		ctxLegend.fillText(mg.metrics[i].legend,x+25,y);
+		ctxLegend.fillText(mg.metrics[i].legend,x+40,y);
 		y = y + 25;
 		if (y > (canvasLegend.height - 30)) {
 		    y = 25;
 		    x = x + width + 15;
 		}
+	}
+			
+};
+
+function hotspot(data,id) {
+    var canvas = document.getElementById(id);
+    var ctx = canvas.getContext("2d");
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.font = '14pt Calibri';
+
+	var height = 18;
+	var radius = 11;
+	var baseline = height;
+	
+	for (var i in data.hotspots) {
+		var hotspot = data.hotspots[i];
+		var lines = Math.max(hotspot.input.length,hotspot.output.length);
+
+		var x = 10;
+		var	y = baseline;
+		var x1 = canvas.width*1/3;
+		var x2 = canvas.width*2/3;
+		
+		ctx.fillStyle = "rgba(0,0,0,1.0)";
+		var len = ctx.measureText(hotspot.component).width;
+		ctx.fillText(hotspot.component,canvas.width/2-(len/2),y+10);
+	    ctx.beginPath();
+
+		var lx = canvas.width/2-(len/2)-radius;
+		var rx = canvas.width/2+(len/2)+radius;
+		ctx.moveTo(lx,y-radius+3);
+		ctx.lineTo(rx,y-radius+3);
+	    ctx.arc(rx,y+3,radius,1.5*Math.PI,0.5*Math.PI,false);	    
+		ctx.lineTo(lx,y+radius+3);
+	    ctx.arc(lx,y+3,radius,0.5*Math.PI,1.5*Math.PI,false);	    
+
+		ctx.moveTo(x1,y-5);
+		ctx.lineTo(x1,y+(lines*height));
+		ctx.moveTo(x2,y-5);
+		ctx.lineTo(x2,y+(lines*height));
+		ctx.closePath();
+		ctx.stroke();
+				
+		for (var s in hotspot.input) {
+			x = 20;
+			y = baseline + s * height * lines;
+			ctx.fillStyle = "rgba(0,0,0,1.0)";
+			len = ctx.measureText(hotspot.input[s].stream).width;
+			ctx.fillText(hotspot.input[s].stream,x1-30-len,y+5);
+			ctx.beginPath();
+			if (hotspot.input[s].ok) {
+				ctx.fillStyle = "rgba(0,240,0,1.0)";
+			} else {
+				ctx.fillStyle = "rgba(240,0,0,1.0)";
+			};
+			ctx.arc(x1-15,y,5,0,Math.PI*2.0,true);	    
+			ctx.closePath();
+			ctx.fill();
+		}
+		
+		for (var s in hotspot.output) {
+		    x = canvas.width*2/3;
+			y = baseline + s * height * lines;
+			ctx.fillStyle = "rgba(0,0,0,1.0)";
+			ctx.fillText(hotspot.output[s].stream,x2+30,y+5);
+		    ctx.beginPath();
+			if (hotspot.output[s].ok) {
+				ctx.fillStyle = "rgba(0,240,0,1.0)";
+			} else {
+				ctx.fillStyle = "rgba(240,0,0,1.0)";
+			};
+			ctx.arc(x2+15,y,5,0,Math.PI*2.0,true);	    
+			ctx.closePath();
+			ctx.fill();
+		}
+	
+		baseline = baseline + height * lines + 70;
+	}
+			
+};
+
+function hotspotOld(data,id) {
+    var canvas = document.getElementById(id);
+    var ctx = canvas.getContext("2d");
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.font = '14pt Calibri';
+
+	var height = 36;
+	var radius = height / 2;;
+	var baseline = height;
+	
+	for (var i in data.hotspots) {
+		var hotspot = data.hotspots[i];
+		var lines = Math.max(hotspot.input.length,hotspot.output.length);
+
+		var x = 10;
+		var	y = baseline;
+		var x1 = canvas.width*1/3 + radius;
+		var x2 = canvas.width*2/3 - radius;
+		
+		ctx.fillStyle = "rgba(0,0,0,1.0)";
+		ctx.fillText(hotspot.component,canvas.width*1/3+20,y+5);
+	    ctx.beginPath();
+		ctx.moveTo(x1,y-radius);
+		ctx.lineTo(x2,y-radius);
+	    ctx.arc(x2,y,radius,1.5*Math.PI,0.5*Math.PI,false);	    
+		ctx.lineTo(x1,y+radius);
+	    ctx.arc(x1,y,radius,0.5*Math.PI,1.5*Math.PI,false);	    
+		ctx.closePath();
+		ctx.stroke();
+				
+		for (var s in hotspot.input) {
+			x = 10;
+			y = baseline + (s * height * lines / hotspot.input.length);
+//			ctx.fillStyle = "rgba(0,0,0,1.0)";
+			ctx.fillText(hotspot.input[s].stream,x,y-8);
+//			ctx.fillStyle = "rgba(0,0,0,0.0)";
+			ctx.strokeStyle = "rgba(0,0,0,1.0)";
+	    	ctx.beginPath();
+		    ctx.moveTo(x,y);		    
+		    if (s > 0) {
+			    ctx.lineTo(canvas.width/3-height,y);
+			    ctx.arc(canvas.width/3-height,y-radius,radius,0.5*Math.PI,0,true);	    
+			    ctx.arc(canvas.width/3,y-radius,radius,Math.PI,-0.5*Math.PI,false);	    
+		    } else {
+			    ctx.lineTo(canvas.width/3,y);
+		    }
+			ctx.stroke();
+			ctx.beginPath();
+			if (hotspot.input[s].ok == "true") {
+				ctx.fillStyle = "rgba(0,240,0,1.0)";
+			} else {
+				ctx.fillStyle = "rgba(240,0,0,1.0)";
+			};
+			ctx.arc(canvas.width/3-height-4,y-radius+3,5,0,Math.PI*2.0,true);	    
+			ctx.closePath();
+			ctx.fill();
+			ctx.fillStyle = "rgba(0,0,0,1.0)";
+		}
+		
+		for (var s in hotspot.output) {
+		    x = canvas.width*2/3;
+			y = baseline + (s * height * lines / hotspot.output.length);
+//			ctx.fillStyle = "rgba(0,0,0,1.0)";
+			ctx.fillText(hotspot.output[s].stream,x+height+10,y-8);
+		    ctx.beginPath();
+		    if (s > 0) {
+			    ctx.moveTo(x+height,y);
+		    } else {
+			    ctx.moveTo(x,y);
+		    }
+		    ctx.lineTo(canvas.width,y);
+			ctx.closePath();
+			ctx.stroke();
+//			ctx.closePath();
+			ctx.beginPath();
+			if (hotspot.output[s].ok == "true") {
+				ctx.fillStyle = "rgba(0,240,0,1.0)";
+			} else {
+				ctx.fillStyle = "rgba(240,0,0,1.0)";
+			};
+			ctx.arc(x+height-3,y-radius+3,5,0,Math.PI*2.0,true);	    
+			ctx.closePath();
+			ctx.fill();
+			ctx.fillStyle = "rgba(0,0,0,1.0)";
+		}
+	
+		baseline = baseline + height * lines + 70;
 	}
 			
 };
@@ -225,6 +406,9 @@ function success(data) {
 		}
 		if (widget.kind == "legend") {
 			legend(data,widget.id,widget.metricGroup);
+		}
+		if (widget.kind == "hotspot") {
+			hotspot(data,widget.id);
 		}
 	}
 };

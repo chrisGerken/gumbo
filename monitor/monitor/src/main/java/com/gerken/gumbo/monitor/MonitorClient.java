@@ -15,6 +15,7 @@ public class MonitorClient implements IMetricsAggregator {
 	private Long lastBucket = null;
 	
 	private HashSet<TaskKey> taskKeys = new HashSet<TaskKey>();
+	private HashMap<Integer, String> taskMeta = new HashMap<Integer, String>();
 	
 	private static MetricsHistory history;
 	private static HashMap<String, MonitorClient> clients = new HashMap<String, MonitorClient>();
@@ -104,16 +105,21 @@ public class MonitorClient implements IMetricsAggregator {
 	
 
 	public void declare(String metricGroup, String metric, int task) {
+		declare(metricGroup, metric, task, "default");
+	}
+
+	public void declare(String metricGroup, String metric, int task, String taskGroup) {
 		taskKeys.add(new TaskKey(metricGroup,metric,task));
 		history.declare(metricGroup, metric, task);
+		taskMeta.put(task, taskGroup);
 	}
 
-	public void graphConnect(String graphName, String fromNode, String edgeName, String toNode) {
-		history.graphConnect(graphName, fromNode, edgeName, toNode);
+	public void topologyConnect(String fromNode, String edgeName, String toNode) {
+		history.topologyConnect(fromNode, edgeName, toNode);
 	}
 
-	public void graphConnect(String graphName, String fromNode, String edgeName) {
-		history.graphConnect(graphName, fromNode, edgeName);
+	public void topologyConnect(String fromNode, String edgeName) {
+		history.topologyConnect(fromNode, edgeName);
 	}
 
 	public void addUser() {

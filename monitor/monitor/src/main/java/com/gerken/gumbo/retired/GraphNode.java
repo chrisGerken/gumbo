@@ -1,8 +1,11 @@
-package com.gerken.gumbo.monitor;
+package com.gerken.gumbo.retired;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
 
 public class GraphNode {
 
@@ -74,4 +77,19 @@ public class GraphNode {
 	public Set<GraphNode> getAncestors() {
 		return ancestors;
 	}
+
+//	public JSONObject asJson() {
+//		JSONObject jobj = new JSONObject();
+//		jobj.put("node", name);
+//		JSONArray jarr = new JSONArray();
+//		for (String stream : outputs.keySet()) {
+//			JSONObject node = new JSONObject();
+//			
+//			jarr.put(node);
+//		}
+//		jobj.put("nodes", jarr);
+//		return jobj;
+//		private HashMap<String, HashSet<GraphNode>> outputs = new HashMap<String, HashSet<GraphNode>>();
+//	}
+	
 }

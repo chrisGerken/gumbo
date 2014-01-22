@@ -1,10 +1,6 @@
 package com.gerken.gumbo.storm;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,9 +17,7 @@ import backtype.storm.hooks.info.SpoutAckInfo;
 import backtype.storm.hooks.info.SpoutFailInfo;
 import backtype.storm.task.TopologyContext;
 
-import com.gerken.gumbo.monitor.IMetricsAggregator;
 import com.gerken.gumbo.monitor.MonitorClient;
-import com.gerken.gumbo.monitor.MonitorServer;
 
 public class TaskHook implements ITaskHook {
 
@@ -51,14 +45,14 @@ public class TaskHook implements ITaskHook {
 		
 		Set<String> outputs = context.getComponentStreams(id);
 		for (String stream : outputs) {
-			mclient.graphConnect("Topology", id, stream);
+			mclient.topologyConnect(id, stream);
 		}
 		Map<GlobalStreamId, Grouping> inputs = context.getSources(id);
 		for (GlobalStreamId gsi : inputs.keySet()) {
 			String stream = gsi.get_streamId();
-			String toNode = gsi.get_componentId();
-			mclient.graphConnect("Topology", id, stream, toNode);
-			mclient.declare("Backlog",stream,task);
+			String fromNode = gsi.get_componentId();
+			mclient.topologyConnect(fromNode, stream, id);
+			mclient.declare("Backlog",stream,task,id);
 		}
 
 //		if (context.getThisSources().isEmpty()) {
@@ -117,10 +111,12 @@ public class TaskHook implements ITaskHook {
 	}
 
 	public static void registerTo(Config newConfig) {
-        if ("true".equals(newConfig.get("backlog.monitor.enabled").toString())) {
+        if ("true".equals(newConfig.get("storm.monitor.enabled").toString())) {
             List<String> hooksList= new ArrayList<String>();
             hooksList.add(TaskHook.class.getName());
             newConfig.put(Config.TOPOLOGY_AUTO_TASK_HOOKS, hooksList);
+
+            newConfig.put("storm.monitor.start",System.currentTimeMillis());
         }
 	}
 

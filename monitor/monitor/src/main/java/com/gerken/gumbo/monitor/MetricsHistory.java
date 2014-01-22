@@ -3,8 +3,10 @@ package com.gerken.gumbo.monitor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import org.apache.commons.math.stat.regression.SimpleRegression;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -15,13 +17,14 @@ public class MetricsHistory {
 	private int maxCount = 100;
 	private long start;
 	private long bucketSize;
+	private Long latestBucketWithData;
 
 	private HashMap<String, String> colors = new HashMap<String, String>();
 	private ArrayList<String> availableColors = colorStrings();
 	private ArrayList<MetricSnaphot> recentData = new ArrayList<MetricSnaphot>();
 	private HashMap<String, HashMap<String, HashSet<Integer>>> schema = new HashMap<String, HashMap<String,HashSet<Integer>>>();
 	
-	private HashMap<String, Graph> graphs = new HashMap<String, Graph>();
+	private Topology topology = new Topology();
 
 		// bucket -> metricGroup -> metric -> task -> value
 	private HashMap<Long, HashMap<String, HashMap<String, HashMap<Integer, Long>>>> history = new HashMap<Long, HashMap<String, HashMap<String, HashMap<Integer, Long>>>>();
@@ -51,6 +54,10 @@ public class MetricsHistory {
 	
 	private Long retrieve(String metricGroup, String metric, Integer task, Long bucket) {
 		return updateUsing(metricGroup, metric, task, bucket, null);
+	}
+	
+	private Long retrieveLatest(String metricGroup, String metric, Integer task) {
+		return retrieve(metricGroup, metric, task, latestBucketWithData);
 	}
 	
 	private Long updateUsing(String metricGroup, String metric, Integer task, Long bucket, Long increment) {
@@ -100,7 +107,7 @@ public class MetricsHistory {
 		pending = recentData;
 		recentData = new ArrayList<MetricSnaphot>();
 
-		Long latestBucketWithData = latestBucket - 1;
+		latestBucketWithData = latestBucket - 1;
 		if (latestBucketWithData < 0) {
 			latestBucketWithData = 0L;
 		}
@@ -221,8 +228,36 @@ public class MetricsHistory {
 						maxMetricValue = sums[i];
 					}
 				}
+
+				double slope = 0.0;
+				if (latestBucket > 4) {
+					SimpleRegression regression = new SimpleRegression();
+					for (int d = 0; d < Math.min(sums.length,(latestBucket-1)); d++) {
+						if (sums[d] != null) {
+							regression.addData((double)d,(double)sums[d]);
+						}
+					}
+					slope = regression.getSlope();
+					if (Double.isNaN(slope)) {
+						slope = 0.0;
+					}
+				}
+				
+				Integer trend = 0;
+				if (slope < 0.0) {
+					trend = -1;
+				} else if (slope > 0.0) {
+					trend = 1;
+				} else {
+					trend = 0;
+				}
+				
 				jMetric.put("values", jarr4);
+				jMetric.put("slope", slope);
+				jMetric.put("trend", trend);
+				topology.setTrend(metric, trend);
 				jMetric.put("max", maxMetricValue);
+				jMetric.put("upTrendCount", topology.getUpTrendCount(metric));
 								
 				jarr2.put(jMetric);
 			}
@@ -234,7 +269,58 @@ public class MetricsHistory {
 
 		wrapper.put("metricGroups", jarr1);
 		
+		wrapper.put("hotspots", getHotspots());
+		
 		return wrapper;
+	}
+	
+	private JSONArray getHotspots() throws JSONException {
+		JSONArray hotspots = new JSONArray();
+		
+		HashSet<String> badStreams = new HashSet<String>();
+		for (String stream : topology.getStreams()) {
+			if (topology.getTrend(stream) > 0) {
+				badStreams.add(stream);
+			}
+		}
+		
+		HashSet<String> badComponents = new HashSet<String>();
+		for (String stream : badStreams) {
+			badComponents.addAll(topology.componentsFromStream(stream));
+		}
+		
+		for (String component: badComponents) {
+			JSONObject hotspot = new JSONObject();
+			
+			hotspot.put("component", component);
+			
+			int maxDuration = 0;
+			JSONArray streams = new JSONArray();
+			for (String stream : topology.streamsToComponent(component)) {
+				JSONObject jobj = new JSONObject();
+				jobj.put("stream", stream);
+				jobj.put("ok",!badStreams.contains(stream));
+				if (maxDuration < topology.getUpTrendCount(stream)) {
+					maxDuration = topology.getUpTrendCount(stream);
+				}
+				streams.put(jobj);
+			}
+			hotspot.put("input", streams);
+			hotspot.put("duration", maxDuration);
+			
+			streams = new JSONArray();
+			for (String stream : topology.streamsFromComponent(component)) {
+				JSONObject jobj = new JSONObject();
+				jobj.put("stream", stream);
+				jobj.put("ok",!badStreams.contains(stream));
+				streams.put(jobj);
+			}
+			hotspot.put("output", streams);
+			
+			hotspots.put(hotspot);
+		}
+		
+		return hotspots;
 	}
 	
 	private void advanceLatestTimeToPresent() {
@@ -329,21 +415,13 @@ public class MetricsHistory {
 		tasks.add(task);
 	}
 
-	public void graphConnect(String graphName, String fromNode, String edgeName, String toNode) {
-		Graph graph = graphs.get(graphName);
-		if (graph == null) {
-			graph = new Graph(graphName);
-			graphs.put(graphName, graph);
-		}
-		
-		// Still under construction... 
-		
-//		graph.connect(fromNode, toNode, edgeName);
+	public void topologyConnect(String fromNode, String edgeName, String toNode) {
+		topology.addComponentInput(edgeName,toNode);
+		topology.addComponentOutput(fromNode,edgeName);
 	}
 
-	public void graphConnect(String graphName, String fromNode, String edgeName) {
-		// TODO Auto-generated method stub
-		
+	public void topologyConnect(String fromNode, String edgeName) {
+		topology.addComponentOutput(fromNode,edgeName);
 	}
 
 	public void update(ArrayList<MetricSnaphot> snapshots) {

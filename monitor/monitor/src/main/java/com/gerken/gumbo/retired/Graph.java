@@ -1,8 +1,12 @@
-package com.gerken.gumbo.monitor;
+package com.gerken.gumbo.retired;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
 public class Graph {
 
@@ -21,7 +25,10 @@ public class Graph {
 		from.addOutput(edgeName,to);
 		froms.add(from);
 		tos.add(to);
-		layout();
+//
+// not sure we need this call to layout(), actually...
+//		
+//		layout();
 	}
 
 	private GraphNode getNode(String nodeName) {
@@ -32,6 +39,18 @@ public class Graph {
 		}
 		return node;
 	}
+	
+//	public JSONObject asJson() throws JSONException {
+//		JSONObject jobj = new JSONObject();
+//		jobj.put("graph", name);
+//		JSONArray jarr = new JSONArray();
+//		for (String name : nodes.keySet()) {
+//			JSONObject node = nodes.get(name).asJson();
+//			jarr.put(node);
+//		}
+//		jobj.put("nodes", jarr);
+//		return jobj;
+//	}
 
 	private void layout() {
 

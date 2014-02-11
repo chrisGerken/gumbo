@@ -6,7 +6,7 @@
 	
 	<script type="text/javascript">
  
- 		var metricsSourceURL = "http://localhost:8087/";
+ 		var metricsSourceURL = "http://localhost:8085/";
  	
  		// Default Storm monitoring provides one metrics group ("Backlog") which has a metric for each stream in the topology.
  		
@@ -15,10 +15,11 @@
  			widgets: [
  				{ title: "Stream Backlogs", 	id: "backlogs", 		kind: "hist",   x: 10,  y: 30,  width: 1200, height: 250, metricGroup: "Backlog" } ,
  //				{ title: "Backlogs SoV",		id: "BlogsSOV", 		kind: "metricsov", x: 10, y: 330, width:  250, height: 250, metricGroup: "Backlog"} ,
- 				{ title: "Topics Backlog into MatcherReader",			id: "TopicsSOV", 		kind: "tasksov", x: 10, y: 330, width:  300, height: 250, metricGroup: "Backlog", metric: "Topics" } ,
- 				{ title: "Terms Backlog into TermAnalytics",			id: "TermsSOV", 		kind: "tasksov", x: 350, y: 330, width:  300, height: 250, metricGroup: "Backlog", metric: "Terms" } ,
- 				{ title: "Streams", 			id: "legend", 			kind: "legend", x: 710, y: 330, width:  500, height: 250, metricGroup: "Backlog" } ,
- 				{ title: "Hotspots", 		    id: "hotspots", 	    kind: "hotspot",   x: 10,  y: 630, width: 600, height: 600  } 
+ 				{ title: "Backlog into HeaderBlockReader",			id: "HbrSOV", 		kind: "tasksov", x: 10, y: 630, width:  300, height: 250, metricGroup: "Backlog", metric: "HeaderBlocks" } ,
+  				{ title: "Backlog into ArticleReader",			id: "ArSOV", 		kind: "tasksov", x: 380, y: 630, width:  400, height: 250, metricGroup: "Backlog", metric: "Articles" } ,
+  				{ title: "Backlog into HeaderReader",			id: "HrSOV", 		kind: "tasksov", x: 820, y: 630, width:  370, height: 250, metricGroup: "Backlog", metric: "PrimaryHeaders" } ,
+ 				{ title: "Streams", 			id: "legend", 			kind: "legend", x:10, y: 330, width:  500, height: 250, metricGroup: "Backlog" } ,
+ 				{ title: "Hotspots", 		    id: "hotspots", 	    kind: "hotspot",   x: 540,  y: 330, width: 570, height: 600  } 
  				]
  		};
  

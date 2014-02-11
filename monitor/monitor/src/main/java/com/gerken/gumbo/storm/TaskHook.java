@@ -77,6 +77,7 @@ public class TaskHook implements ITaskHook {
 		String stream = info.stream;
 		
 		mclient.increment("Backlog", stream, 1L, info.outTasks);
+//		System.out.println("Emit to "+stream);
 	}
 
 	@Override
@@ -93,6 +94,7 @@ public class TaskHook implements ITaskHook {
 
 	@Override
 	public void boltExecute(BoltExecuteInfo info) {
+//		System.out.println("Exec from "+info.tuple.getSourceStreamId()+" ("+enabled+")");
 		if (!enabled) { return; }
 		String stream = info.tuple.getSourceStreamId();
 		mclient.increment("Backlog", stream, -1L, info.executingTaskId);

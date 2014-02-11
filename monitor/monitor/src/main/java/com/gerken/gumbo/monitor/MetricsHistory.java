@@ -256,6 +256,7 @@ public class MetricsHistory {
 				jMetric.put("slope", slope);
 				jMetric.put("trend", trend);
 				topology.setTrend(metric, trend);
+				topology.setLatest(metric, sums[latestBucketWithData.intValue()]);
 				jMetric.put("max", maxMetricValue);
 				jMetric.put("upTrendCount", topology.getUpTrendCount(metric));
 								
@@ -279,7 +280,7 @@ public class MetricsHistory {
 		
 		HashSet<String> badStreams = new HashSet<String>();
 		for (String stream : topology.getStreams()) {
-			if (topology.getTrend(stream) > 0) {
+			if ((topology.getTrend(stream) > 0) && (topology.getLatest(stream) > 0)) {
 				badStreams.add(stream);
 			}
 		}

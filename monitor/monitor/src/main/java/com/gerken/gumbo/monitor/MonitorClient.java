@@ -128,6 +128,9 @@ public class MonitorClient implements IMetricsAggregator {
 	
 	public void cleanup() {
 		users--;
+		if (users == 0) {
+			history.stop();
+		}
 	}
 
 	

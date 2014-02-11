@@ -146,21 +146,19 @@ function legend(data,id,metricGroup) {
 	for (var i in mg.metrics) {
 		ctxLegend.fillStyle = "rgba("+mg.metrics[i].color+",1.0)";
 		ctxLegend.fillRect(x,y-18,20,20);
-		var style = "#0000FF";
-		var trend = mg.metrics[i].trend; 
-		if (trend > 0) {
-			style = "#FF0000";
-		};
-		if (trend < 0) {
-			style = "#00FF00";
-		};
-		ctxLegend.fillStyle = style;
-		ctxLegend.beginPath();
-		ctxLegend.arc(x+31,y-8,6,0,2.0*Math.PI);
-		ctxLegend.fill();
-		ctxLegend.fill();
+
 		ctxLegend.fillStyle = "rgba(0,0,0,1.0)";
-		ctxLegend.fillText(mg.metrics[i].legend,x+40,y);
+		ctxLegend.fillText(mg.metrics[i].legend,x+25,y);
+		
+		if (mg.metrics[i].trend > 0) {
+			var len = ctxLegend.measureText(mg.metrics[i].legend).width;
+			ctxLegend.fillStyle = "#FF0000";
+			ctxLegend.beginPath();
+			ctxLegend.arc(x+len+36,y-5,6,0,2.0*Math.PI);
+			ctxLegend.closePath();
+			ctxLegend.fill();
+		}
+
 		y = y + 25;
 		if (y > (canvasLegend.height - 30)) {
 		    y = 25;

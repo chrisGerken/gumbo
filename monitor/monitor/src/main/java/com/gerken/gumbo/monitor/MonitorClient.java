@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MonitorClient implements IMetricsAggregator {
@@ -40,6 +41,17 @@ public class MonitorClient implements IMetricsAggregator {
 		}
 		client.addUser();
 		return client;
+	}
+	
+	public static MonitorClient forConfig(Map conf) {
+		
+		String host = (String) conf.get("storm.monitor.host");
+		int port = Integer.parseInt(String.valueOf(conf.get("storm.monitor.port")));
+		Long start = (Long) conf.get("storm.monitor.start");
+		Long bsize = (Long) conf.get("storm.monitor.bucketSize");
+		
+		return MonitorClient.connect(host,port,start,bsize);
+		
 	}
 
 	@Override

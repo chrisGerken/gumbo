@@ -19,7 +19,7 @@ So for this ![topology](https://github.com/chrisGerken/gumbo/blob/master/monitor
 
 Code
 ===
-
+<pre>
 HashMap map = new HashMap();
 map.put("storm.monitor.host", a_String_IP_address);
 map.put("storm.monitor.port", an_Integer_Port_Number);
@@ -38,7 +38,7 @@ mclient.declare(metricGroup,metric,task_id,component_id);
    ...   
    
 mclient.increment(metricGroup,metric, 1L , task_id);
-
+</pre>
 
 
   

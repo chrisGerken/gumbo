@@ -15,3 +15,30 @@ A performance monitor for Storm topologies.  Consists of:
 
 
 So for this ![topology](https://github.com/chrisGerken/gumbo/blob/master/monitor/monitor/src/main/resources/IngesterTopology.png) you might see this ![dashboard](https://github.com/chrisGerken/gumbo/blob/master/monitor/monitor/src/main/resources/Gumbo.png)
+
+
+Code
+===
+
+HashMap map = new HashMap();
+map.put("storm.monitor.host", a_String_IP_address);
+map.put("storm.monitor.port", an_Integer_Port_Number);
+map.put("storm.monitor.start", System.currentTimeMillis());  // should be the same for all calls
+map.put("storm.monitor.bucketsize", 1000L);
+
+MonitorClient mclient = MonitorClient.forConfig(conf);
+
+   ...
+
+//  There are multiple metric groups, each with multiple metrics.
+//  Components have names and multiple instances, each of which has an integer ID
+   
+mclient.declare(metricGroup,metric,task_id,component_id);
+
+   ...   
+   
+mclient.increment(metricGroup,metric, 1L , task_id);
+
+
+
+  

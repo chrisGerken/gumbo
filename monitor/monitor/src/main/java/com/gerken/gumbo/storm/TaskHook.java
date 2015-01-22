@@ -53,6 +53,10 @@ public class TaskHook implements ITaskHook {
 			String fromNode = gsi.get_componentId();
 			mclient.topologyConnect(fromNode, stream, id);
 			mclient.declare("Backlog",stream,task,id);
+			String colorKey = "gumbo."+stream+".color";
+			if (conf.containsKey(colorKey)) {
+				mclient.setColor(stream, (String)conf.get(colorKey));
+			}
 		}
 
 //		if (context.getThisSources().isEmpty()) {

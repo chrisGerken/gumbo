@@ -60,6 +60,14 @@ public class MetricsHistory {
 		return retrieve(metricGroup, metric, task, latestBucketWithData);
 	}
 	
+	public void setColor(String metric, String color) {
+
+		if (!colors.containsKey(metric)) {
+			colors.put(metric, color);
+			availableColors.remove(color);
+		}
+	}
+	
 	private Long updateUsing(String metricGroup, String metric, Integer task, Long bucket, Long increment) {
 
 		if (!colors.containsKey(metric)) {

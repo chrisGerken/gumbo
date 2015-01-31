@@ -278,9 +278,32 @@ public class MetricsHistory {
 
 		wrapper.put("metricGroups", jarr1);
 		
+		wrapper.put("graph", getAnnotatedGraph());
+		
 		wrapper.put("hotspots", getHotspots());
 		
 		return wrapper;
+	}
+	
+	private JSONObject getAnnotatedGraph() {
+
+		JSONObject graph = topology.getGraphAsJson();
+		HashMap<String, HashSet<Integer>> backlog = schema.get("Backlog");
+		
+		try {
+			JSONArray edges = graph.getJSONArray("edges");
+			
+			for (int i = 0; i < edges.length(); i++) {
+				JSONObject edge = edges.getJSONObject(i);
+				String stream = edge.getString("stream");
+				edge.put("color", colors.get(stream));
+				edge.put("trend", topology.getTrend(stream));
+			}
+		} catch (JSONException e) {
+		}
+		
+		return graph;
+	
 	}
 	
 	private JSONArray getHotspots() throws JSONException {

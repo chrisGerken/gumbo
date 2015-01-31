@@ -1,8 +1,13 @@
 package com.gerken.gumbo.monitor;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.codehaus.jettison.json.JSONObject;
+
+import com.gerken.gumbo.graph.Graph;
 
 public class Topology {
 
@@ -11,6 +16,8 @@ public class Topology {
 	private HashMap<String, Integer> trends = new HashMap<String, Integer>();
 	private HashMap<String, Integer> upTrendCounts = new HashMap<String, Integer>();
 	private HashMap<String, Long> latestBacklogs = new HashMap<String, Long>();
+	
+	private Graph graph = null;
 	
 	public Topology() {
 
@@ -63,7 +70,9 @@ public class Topology {
 
 	public synchronized void addComponentInput(String stream, String component) {
 		HashSet<String> names = componentsFromStream(stream);
-		names.add(component);
+		if (names.add(component)) {
+			setGraph(null);
+		}
 	}
 
 	public HashSet<String> componentsFromStream(String stream) {
@@ -77,7 +86,9 @@ public class Topology {
 
 	public synchronized void addComponentOutput(String component, String stream) {
 		HashSet<String> names = streamsFromComponent(component);
-		names.add(stream);
+		if (names.add(stream)) {
+			setGraph(null);
+		}
 	}
 
 	public HashSet<String> streamsFromComponent(String component) {
@@ -109,6 +120,21 @@ public class Topology {
 
 	public void setLatest(String stream, Long backlog) {
 		latestBacklogs.put(stream,backlog);
+	}
+
+	public Graph getGraph() {
+		if (graph==null) {
+			graph = new Graph(components, streams);
+		}
+		return graph;
+	}
+
+	private void setGraph(Graph graph) {
+		this.graph = graph;
+	}
+
+	public JSONObject getGraphAsJson() {
+		return getGraph().asJson();
 	}
 
 }

@@ -150,5 +150,4 @@ public class MonitorClient implements IMetricsAggregator {
 		history.setColor(metric, color);
 	}
 
-	
 }

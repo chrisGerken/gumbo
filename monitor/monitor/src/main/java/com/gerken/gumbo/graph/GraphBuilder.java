@@ -51,8 +51,25 @@ public class GraphBuilder {
 		return gb.build();
 	}
 	
+	public static Graph graph02() {
+		GraphBuilder gb = new GraphBuilder();
+		gb.connect("Reader", "Parser", "Raw");
+		gb.connect("Parser", "Validator", "Parsed");
+		gb.connect("Validator", "Enricher", "Validated");
+		gb.connect("Enricher", "Multiplexer", "Enriched");
+		gb.connect("Multiplexer", "Approver", "Important");
+		gb.connect("Multiplexer", "RedTaper", "UnImportant");
+		gb.connect("Multiplexer", "Overseer", "Urgent");
+		gb.connect("Approver", "Executor", "Approved");
+		gb.connect("Approver", "Logger", "ToBeLogged");
+		gb.connect("Overseer", "Approver", "Overseen");
+		gb.connect("Executor", "Logger", "ToBeLogged1");
+		gb.connect("Logger", "Publisher", "Logged");
+		return gb.build();
+	}
+	
 	public static void main(String args[]) {
-		Graph g = graph01();
+		Graph g = graph02();
 		g.print();
 	}
 }

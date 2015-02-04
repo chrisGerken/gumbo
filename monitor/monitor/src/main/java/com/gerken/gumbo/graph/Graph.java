@@ -11,8 +11,8 @@ import org.codehaus.jettison.json.JSONObject;
 
 public class Graph {
 
-	private HashMap<String, HashSet<String>> components;
-	private HashMap<String, HashSet<String>> streams;
+	private HashMap<String, HashSet<String>> components = new HashMap<String, HashSet<String>>();
+	private HashMap<String, HashSet<String>> streams = new HashMap<String, HashSet<String>>();
 	
 	private HashMap<String, GraphNode> nodes = new HashMap<String, GraphNode>();
 	private ArrayList<GraphEdge> edges = new ArrayList<GraphEdge>();
@@ -30,10 +30,18 @@ public class Graph {
 		// build the nodes and edges
 		for (String fromComponent : components.keySet()) {
 			GraphNode from = nodeFor(fromComponent);
+			HashSet<String> outStreams = components.get(fromComponent);
+			if (outStreams==null) {
+				outStreams = new HashSet<String>();
+			}
 			// for each stream coming out of fromComponent...
-			for (String stream : components.get(fromComponent)) {
+			for (String stream : outStreams) {
 				// for each component reading from stream...
-				for (String toComponent : streams.get(stream)) {
+				HashSet<String> dests = streams.get(stream);
+				if (dests==null) {
+					dests = new HashSet<String>();
+				}
+				for (String toComponent : dests) {
 					GraphNode to = nodeFor(toComponent);
 					GraphEdge edge = new GraphEdge(from, to, stream);
 					edges.add(edge);
@@ -86,9 +94,8 @@ public class Graph {
 		
 		// calculate the paths for the edges
 		
-		int charWidth = 8;
-		int margin = 5;
-		int wpWidth = 6;
+		int margin = 25;
+		int nodeWidth = 6;
 
 		int max = maxDepth();
 		int leftToRight = margin;
@@ -99,8 +106,7 @@ public class Graph {
 		for (GraphNode node : nodes.values()) {
 			if (node.getDepth()==1) {
 				currentPaths.addAll(node.getOutboundEdges());
-				int nodeWidth = node.getComponent().length() * charWidth;
-				node.setOrder(leftToRight+(nodeWidth/2));
+				node.setOrder(leftToRight);
 				leftToRight = leftToRight + nodeWidth + margin;
 			}
 		}
@@ -114,8 +120,7 @@ public class Graph {
 				if (to.getDepth()==level) {
 					// if a node already has an order then it's already contributed to the next paths
 					if (!to.hasOrder()) {
-						int nodeWidth = to.getComponent().length() * charWidth;
-						to.setOrder(leftToRight+(nodeWidth/2));
+						to.setOrder(leftToRight);
 						leftToRight = leftToRight + nodeWidth + margin;
 						for (GraphEdge outbound : to.getOutboundEdges()) {
 							if (!outbound.isLoopBack()) {
@@ -125,16 +130,16 @@ public class Graph {
 						for (GraphEdge outbound : to.getOutboundEdges()) {
 							if (outbound.isLoopBack()) {
 								nextPaths.add(outbound);
-								outbound.addWayPoint(level, leftToRight+(wpWidth/2));
-								leftToRight = leftToRight + margin + wpWidth;;
+								outbound.addWayPoint(level, leftToRight);
+								leftToRight = leftToRight + margin + nodeWidth;;
 							}
 						}
 					}
 				} else {
 					// just passing through
 					nextPaths.add(edge);
-					edge.addWayPoint(level,leftToRight+(wpWidth/2));
-					leftToRight = leftToRight + margin + wpWidth;
+					edge.addWayPoint(level,leftToRight);
+					leftToRight = leftToRight + margin + nodeWidth;
 				}
 			}
 			width[level] = leftToRight-1;
@@ -189,6 +194,9 @@ public class Graph {
 					jarr.put(node.getJson());
 				}
 				json.put("nodes", jarr);
+				
+				json.put("created", System.currentTimeMillis());
+				
 			} catch (JSONException e) {
 			}
 		}

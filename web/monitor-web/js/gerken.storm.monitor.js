@@ -245,95 +245,111 @@ function hotspot(data,id) {
 			
 };
 
-function hotspotOld(data,id) {
+function topology(data,id) {
     var canvas = document.getElementById(id);
     var ctx = canvas.getContext("2d");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.font = '14pt Calibri';
 
-	var height = 36;
-	var radius = height / 2;;
-	var baseline = height;
-	
-	for (var i in data.hotspots) {
-		var hotspot = data.hotspots[i];
-		var lines = Math.max(hotspot.input.length,hotspot.output.length);
+    var graph = data.graph;
+    var perlevel = 45;
+    var perchar  = 8;
+    var vmargin = 10;
 
-		var x = 10;
-		var	y = baseline;
-		var x1 = canvas.width*1/3 + radius;
-		var x2 = canvas.width*2/3 - radius;
+	if (!canvas.gumboMsg) {
+		canvas.gumboMsg = "";
+	}
+	
+	ctx.fillStyle = "rgba(0,0,0,1.0)";
+	ctx.fillText(canvas.gumboMsg,10,15);
+    
+    var hotspots = new Array();
+
+	for (var i in graph.nodes) {
+		var node = graph.nodes[i];
+
+		var x = node.location.order;
+		var y = node.location.depth * perlevel - vmargin;
+		var back = node.component.length * perchar / 2;
+		
+		hotspots.push( { name:("Component: "+node.component), x:x, y:y } );
 		
 		ctx.fillStyle = "rgba(0,0,0,1.0)";
-		ctx.fillText(hotspot.component,canvas.width*1/3+20,y+5);
+		ctx.strokeStyle = "rgba(0,0,0,1.0)";
+//		ctx.fillText(node.component,x,y);
 	    ctx.beginPath();
-		ctx.moveTo(x1,y-radius);
-		ctx.lineTo(x2,y-radius);
-	    ctx.arc(x2,y,radius,1.5*Math.PI,0.5*Math.PI,false);	    
-		ctx.lineTo(x1,y+radius);
-	    ctx.arc(x1,y,radius,0.5*Math.PI,1.5*Math.PI,false);	    
+		ctx.arc(x,y,3,0,Math.PI*2.0,true);	    
 		ctx.closePath();
 		ctx.stroke();
-				
-		for (var s in hotspot.input) {
-			x = 10;
-			y = baseline + (s * height * lines / hotspot.input.length);
-//			ctx.fillStyle = "rgba(0,0,0,1.0)";
-			ctx.fillText(hotspot.input[s].stream,x,y-8);
-//			ctx.fillStyle = "rgba(0,0,0,0.0)";
-			ctx.strokeStyle = "rgba(0,0,0,1.0)";
-	    	ctx.beginPath();
-		    ctx.moveTo(x,y);		    
-		    if (s > 0) {
-			    ctx.lineTo(canvas.width/3-height,y);
-			    ctx.arc(canvas.width/3-height,y-radius,radius,0.5*Math.PI,0,true);	    
-			    ctx.arc(canvas.width/3,y-radius,radius,Math.PI,-0.5*Math.PI,false);	    
-		    } else {
-			    ctx.lineTo(canvas.width/3,y);
-		    }
-			ctx.stroke();
-			ctx.beginPath();
-			if (hotspot.input[s].ok == "true") {
-				ctx.fillStyle = "rgba(0,240,0,1.0)";
-			} else {
-				ctx.fillStyle = "rgba(240,0,0,1.0)";
-			};
-			ctx.arc(canvas.width/3-height-4,y-radius+3,5,0,Math.PI*2.0,true);	    
-			ctx.closePath();
-			ctx.fill();
-			ctx.fillStyle = "rgba(0,0,0,1.0)";
+		ctx.fill();
+	}
+
+	var prevwidth = ctx.lineWidth;
+	ctx.lineWidth = 3;
+	for (var i in graph.edges) {
+		var edge = graph.edges[i];
+		
+		ctx.fillStyle = "rgba(0,0,0,1.0)";
+		ctx.strokeStyle = "rgba(0,0,0,1.0)";
+		if (edge.trend > 0) {
+			ctx.fillStyle = "rgba("+edge.color+",1.0)";
+			ctx.strokeStyle = "rgba("+edge.color+",1.0)";
 		}
 		
-		for (var s in hotspot.output) {
-		    x = canvas.width*2/3;
-			y = baseline + (s * height * lines / hotspot.output.length);
-//			ctx.fillStyle = "rgba(0,0,0,1.0)";
-			ctx.fillText(hotspot.output[s].stream,x+height+10,y-8);
-		    ctx.beginPath();
-		    if (s > 0) {
-			    ctx.moveTo(x+height,y);
+	    ctx.beginPath();
+
+		var prevx = 0;
+		var prevy = 0;
+		
+        for (var p in edge.path) {
+        
+			var x = edge.path[p].order;
+			var y = edge.path[p].depth * perlevel - vmargin;
+        
+		    if (p > 0) {
+			    ctx.lineTo(x,y);
+				hotspots.push( { name:("Stream: "+edge.stream), x:((x+prevx)/2), y:((y+prevy)/2) } );
 		    } else {
-			    ctx.moveTo(x,y);
+			    ctx.moveTo(x,y);		    
 		    }
-		    ctx.lineTo(canvas.width,y);
-			ctx.closePath();
-			ctx.stroke();
-//			ctx.closePath();
-			ctx.beginPath();
-			if (hotspot.output[s].ok == "true") {
-				ctx.fillStyle = "rgba(0,240,0,1.0)";
-			} else {
-				ctx.fillStyle = "rgba(240,0,0,1.0)";
-			};
-			ctx.arc(x+height-3,y-radius+3,5,0,Math.PI*2.0,true);	    
-			ctx.closePath();
-			ctx.fill();
-			ctx.fillStyle = "rgba(0,0,0,1.0)";
-		}
-	
-		baseline = baseline + height * lines + 70;
+        	
+        	prevx = x;
+        	prevy = y;
+        	
+        }
+        
+		ctx.closePath();
+		ctx.stroke();
+		
 	}
+	ctx.lineWidth = prevwidth;	
+	
+	if (graph.created != canvas.gumboId) {
+	    canvas.gumboHs = hotspots;
+		canvas.gumboId = graph.created;
+		canvas.onmousemove = function(e) {
+
+			var ex = e.pageX - $(this).offset().left;
+			var ey = e.pageY - $(this).offset().top;
+
+			var displayText = "";
+			for (var i in e.target.gumboHs) {
+				var hotspot = e.target.gumboHs[i];
+                var dx = ex - hotspot.x;
+                var dy = ey - hotspot.y;
+                var d = Math.abs(dx)+Math.abs(dy); 
+                if (d<10) {
+                    displayText = hotspot.name;
+                }
+			}
 			
+			canvas.gumboMsg = displayText;
+						
+		}
+	}
+	
+	// onmouseover  onmouseout	
+		
 };
 
 function monitorStorm() {
@@ -375,6 +391,8 @@ function placeWidgets() {
 		canvas.height = widget.height;
 		canvas.width = widget.width;
 		newdiv.appendChild(canvas);
+	
+	    newdiv.gumboId = 0;
 	}
 
 };
@@ -407,6 +425,9 @@ function success(data) {
 		}
 		if (widget.kind == "hotspot") {
 			hotspot(data,widget.id);
+		}
+		if (widget.kind == "topology") {
+			topology(data,widget.id);
 		}
 	}
 };

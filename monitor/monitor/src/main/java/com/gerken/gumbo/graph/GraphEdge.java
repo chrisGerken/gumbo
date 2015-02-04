@@ -69,6 +69,7 @@ public class GraphEdge {
 		json.put("from", from.getComponent());
 		json.put("to", to.getComponent());
 		json.put("stream", stream);
+		json.put("loopBack",loopBack);
 		JSONArray jarr = new JSONArray();
 		jarr.put(from.getCoordinatesJson());
 		for (WayPoint wp : path) {

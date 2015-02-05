@@ -47,3 +47,5 @@ TaskHook.registerTo(config);
 </pre>
 
 where variable config is of type backtype.storm.Config and contains the properties described above.  
+
+See web/monitor-web in this repo for sample HTML and the Javascript it requires. 

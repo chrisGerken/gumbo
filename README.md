@@ -40,5 +40,10 @@ mclient.declare(metricGroup,metric,task_id,component_id);
 mclient.increment(metricGroup,metric, 1L , task_id);
 </pre>
 
+You can also add the MonitorClient to all spouts and bolts in a topology with this bit of code in the driver class before submitting the cluster:
 
-  
+<pre>
+TaskHook.registerTo(config);
+</pre>
+
+where variable config is of type backtype.storm.Config and contains the properties described above.  

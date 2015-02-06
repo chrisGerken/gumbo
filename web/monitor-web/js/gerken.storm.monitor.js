@@ -245,7 +245,7 @@ function hotspot(data,id) {
 			
 };
 
-function topology(data,id) {
+function topology(data,id,vertical) {
     var canvas = document.getElementById(id);
     var ctx = canvas.getContext("2d");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -270,7 +270,13 @@ function topology(data,id) {
 
 		var x = node.location.order;
 		var y = node.location.depth * perlevel - vmargin;
-		var back = node.component.length * perchar / 2;
+
+		if (!vertical) {
+			var tx = y;  
+			var ty = x + 10;
+			x = tx;
+			y = ty;
+		}
 		
 		hotspots.push( { name:("Component: "+node.component), x:x, y:y } );
 		
@@ -305,6 +311,13 @@ function topology(data,id) {
         
 			var x = edge.path[p].order;
 			var y = edge.path[p].depth * perlevel - vmargin;
+
+			if (!vertical) {
+				var tx = y;  
+				var ty = x + 10;
+				x = tx;
+				y = ty;
+			}
         
 		    if (p > 0) {
 			    ctx.lineTo(x,y);
@@ -427,7 +440,11 @@ function success(data) {
 			hotspot(data,widget.id);
 		}
 		if (widget.kind == "topology") {
-			topology(data,widget.id);
+		    var vertical = false;
+			if (widget.hasOwnProperty("vertical")) {
+			    vertical = widget.vertical;
+			};
+			topology(data,widget.id,vertical);
 		}
 	}
 };

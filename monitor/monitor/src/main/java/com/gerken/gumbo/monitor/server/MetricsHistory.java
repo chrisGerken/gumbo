@@ -1,4 +1,4 @@
-package com.gerken.gumbo.monitor;
+package com.gerken.gumbo.monitor.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +11,10 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-public class MetricsHistory {
+import com.gerken.gumbo.monitor.contract.IMetricsHistory;
+import com.gerken.gumbo.monitor.contract.MetricSnaphot;
+
+public class MetricsHistory implements IMetricsHistory {
 
 	private long latestBucket = 0L;
 	private int maxCount = 100;
@@ -29,12 +32,12 @@ public class MetricsHistory {
 		// bucket -> metricGroup -> metric -> task -> value
 	private HashMap<Long, HashMap<String, HashMap<String, HashMap<Integer, Long>>>> history = new HashMap<Long, HashMap<String, HashMap<String, HashMap<Integer, Long>>>>();
 
-	private MonitorServer monitorServer;
+	private MonitorRestfulServer monitorServer;
 	
 	public MetricsHistory(Long start, Long bucketSize, int port) {
 		this.start = start;
 		this.bucketSize = bucketSize;
-		monitorServer = new MonitorServer(port,this);
+		monitorServer = new MonitorRestfulServer(port,this);
 	}
 
 	public void stop() {

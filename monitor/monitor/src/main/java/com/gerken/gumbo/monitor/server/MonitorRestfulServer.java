@@ -1,4 +1,4 @@
-package com.gerken.gumbo.monitor;
+package com.gerken.gumbo.monitor.server;
 
 import javax.servlet.Servlet;
 
@@ -11,12 +11,13 @@ import org.eclipse.jetty.servlet.Holder.Source;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-public class MonitorServer {
+
+public class MonitorRestfulServer {
 
 	private Server server;
 	private MetricsHistoryHandler metricsHandler;
 	
-	public MonitorServer(int port, MetricsHistory history) {
+	public MonitorRestfulServer(int port, MetricsHistory history) {
 		start(port,history);
 	}
 

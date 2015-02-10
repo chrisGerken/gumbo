@@ -7,7 +7,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MonitorClient implements IMetricsAggregator {
+import com.gerken.gumbo.monitor.contract.IMetricsHistory;
+import com.gerken.gumbo.monitor.contract.MetricSnaphot;
+import com.gerken.gumbo.monitor.contract.MetricsHistoryFactory;
+
+public class MonitorClient {
 
 	private Long   	start;
 	private Long   	bucketSize;
@@ -18,52 +22,39 @@ public class MonitorClient implements IMetricsAggregator {
 	private HashSet<TaskKey> taskKeys = new HashSet<TaskKey>();
 	private HashMap<Integer, String> taskMeta = new HashMap<Integer, String>();
 	
-	private static MetricsHistory history;
+	private static IMetricsHistory history;
 	private static HashMap<String, MonitorClient> clients = new HashMap<String, MonitorClient>();
-	HashMap<TaskKey, AtomicLong> currentSums = new HashMap<TaskKey, AtomicLong>();
+	private HashMap<TaskKey, AtomicLong> currentSums = new HashMap<TaskKey, AtomicLong>();
 	
-	private MonitorClient(String host, int port, Long start, Long bucketSize) {
-		this.start = start;
-		this.bucketSize = bucketSize;
+	private MonitorClient(Map config) {
 		if (history==null) {
-			history = new MetricsHistory(start,bucketSize,port);
+			history = MetricsHistoryFactory.connect(config);
 		}
+		this.start = MetricsHistoryFactory.getStart(config);
+		this.bucketSize = MetricsHistoryFactory.getBucketSize(config);
 	}
 
-	public synchronized static MonitorClient connect(String url, int port, Long start, Long bucketSize) {
+	public synchronized static MonitorClient connect(Map conf) {
 		MonitorClient client = null;
-		String key = url + port;
+		String key = MetricsHistoryFactory.clientKey(conf);
 		if (clients.containsKey(key)) {
 			client = clients.get(key);
 		} else {
-			client = new MonitorClient(url, port, start, bucketSize);
+			client = new MonitorClient(conf);
 			clients.put(key, client);
 		}
 		client.addUser();
 		return client;
-	}
-	
-	public static MonitorClient forConfig(Map conf) {
-		
-		String host = (String) conf.get("storm.monitor.host");
-		int port = Integer.parseInt(String.valueOf(conf.get("storm.monitor.port")));
-		Long start = (Long) conf.get("storm.monitor.start");
-		Long bsize = (Long) conf.get("storm.monitor.bucketSize");
-		
-		return MonitorClient.connect(host,port,start,bsize);
-		
-	}
+	}	
 
-	@Override
 	public void increment(String metricGroup, String metric, Long increase, Collection<Integer> ids) {
 		Long bucket = getCurrentBucket();
-		ArrayList<MetricSnaphot> snapshots = new ArrayList<MetricSnaphot>();
+//		ArrayList<MetricSnaphot> snapshots = new ArrayList<MetricSnaphot>();
 		for (Integer id : ids) {
 			increment(metricGroup, metric, bucket, increase, id);
 		}
 	}
 
-	@Override
 	public void increment(String metricGroup, String metric, Long increase, Integer id) {
 		Long bucket = getCurrentBucket();
 		increment(metricGroup, metric, bucket, increase, id);
@@ -145,7 +136,6 @@ public class MonitorClient implements IMetricsAggregator {
 		}
 	}
 
-	@Override
 	public void setColor(String metric, String color) {
 		history.setColor(metric, color);
 	}

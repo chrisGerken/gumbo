@@ -1,4 +1,4 @@
-package com.gerken.gumbo.monitor;
+package com.gerken.gumbo.monitor.server;
 
 import java.util.Collection;
 import java.util.HashMap;

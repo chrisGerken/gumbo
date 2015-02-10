@@ -18,6 +18,7 @@ import backtype.storm.hooks.info.SpoutFailInfo;
 import backtype.storm.task.TopologyContext;
 
 import com.gerken.gumbo.monitor.MonitorClient;
+import com.gerken.gumbo.monitor.contract.MetricsHistoryFactory;
 
 public class TaskHook implements ITaskHook {
 
@@ -36,12 +37,7 @@ public class TaskHook implements ITaskHook {
 
 		if (id.startsWith("__")) { return; }
 		
-		String host = (String) conf.get("storm.monitor.host");
-		int port = Integer.parseInt(String.valueOf(conf.get("storm.monitor.port")));
-		Long start = (Long) conf.get("storm.monitor.start");
-		Long bsize = (Long) conf.get("storm.monitor.bucketSize");
-		
-		mclient = MonitorClient.connect(host,port,start,bsize);
+		mclient = MonitorClient.connect(conf);
 		
 		Set<String> outputs = context.getComponentStreams(id);
 		for (String stream : outputs) {
@@ -58,13 +54,6 @@ public class TaskHook implements ITaskHook {
 				mclient.setColor(stream, (String)conf.get(colorKey));
 			}
 		}
-
-//		if (context.getThisSources().isEmpty()) {
-//			reliabilityMetricGroup = id+"_Reliability";
-//			mclient.declare(reliabilityMetricGroup, "Emit", task);
-//			mclient.declare(reliabilityMetricGroup, "Ack", task);
-//			mclient.declare(reliabilityMetricGroup, "Fail", task);
-//		}
 
 		enabled = true;
 	}
@@ -117,12 +106,12 @@ public class TaskHook implements ITaskHook {
 	}
 
 	public static void registerTo(Config newConfig) {
-        if ("true".equals(newConfig.get("storm.monitor.enabled").toString())) {
+		if (MetricsHistoryFactory.getEnabled(newConfig)) {
             List<String> hooksList= new ArrayList<String>();
             hooksList.add(TaskHook.class.getName());
             newConfig.put(Config.TOPOLOGY_AUTO_TASK_HOOKS, hooksList);
 
-            newConfig.put("storm.monitor.start",System.currentTimeMillis());
+            newConfig.put(MetricsHistoryFactory.PROPERTY_START,System.currentTimeMillis());
         }
 	}
 

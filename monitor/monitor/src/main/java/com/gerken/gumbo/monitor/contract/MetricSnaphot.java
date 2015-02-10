@@ -1,4 +1,4 @@
-package com.gerken.gumbo.monitor;
+package com.gerken.gumbo.monitor.contract;
 
 public class MetricSnaphot {
 

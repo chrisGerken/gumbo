@@ -1,4 +1,4 @@
-package com.gerken.gumbo.monitor;
+package com.gerken.gumbo.monitor.server;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jettison.json.JSONException;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
+
 
 public class MetricsHistoryHandler extends HandlerWrapper {
 	

@@ -4,6 +4,7 @@ gumbo.enabled=true
 gumbo.server.kind=local
 gumbo.server.key=<topology-name>
 gumbo.local.port=8085
+gumbo.kafka.brokers=localhost:9092
 gumbo.bucketSize=1000
 
 gumbo.Articles.color=250,0,0

@@ -19,6 +19,13 @@ public interface IMetricsHistory {
 	void topologyConnect(String fromNode, String edgeName);
 
 	/*
+	 * Begin capturing the runrime metrics.  Start is the time in millisecond when
+	 * the run began.  BucketSize is the duration on a histogram bucket in millisevonds.
+	 * Port is the port from which metrics history is to be served.
+	 */
+	void restart(Long start, Long bucketSize, int port);
+	
+	/*
 	 *  Request that the metrics history server shut down
 	 */
 	void stop();

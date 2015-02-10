@@ -1,16 +1,14 @@
-package com.gerken.gumbo.monitor.server.kafka;
+package com.gerken.gumbo.monitor.transport.http;
 
 import java.util.ArrayList;
 
 import com.gerken.gumbo.monitor.contract.IMetricsHistory;
 import com.gerken.gumbo.monitor.contract.MetricSnaphot;
 
-public class MetricsHistoryKafkaClient implements IMetricsHistory {
+public class MetricsHistoryHttpClient implements IMetricsHistory {
 
-	private String kafkaBrokers;
-	
-	public MetricsHistoryKafkaClient(String kafkaBrokers) {
-		this.kafkaBrokers = kafkaBrokers;
+	public MetricsHistoryHttpClient() {
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -27,6 +25,12 @@ public class MetricsHistoryKafkaClient implements IMetricsHistory {
 
 	@Override
 	public void topologyConnect(String fromNode, String edgeName) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void restart(Long start, Long bucketSize, int port) {
 		// TODO Auto-generated method stub
 
 	}

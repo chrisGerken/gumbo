@@ -35,6 +35,10 @@ public class MetricsHistory implements IMetricsHistory {
 	private MonitorRestfulServer monitorServer;
 	
 	public MetricsHistory(Long start, Long bucketSize, int port) {
+		restart(start, bucketSize, port);
+	}
+	
+	public void restart(Long start, Long bucketSize, int port) {
 		this.start = start;
 		this.bucketSize = bucketSize;
 		monitorServer = new MonitorRestfulServer(port,this);

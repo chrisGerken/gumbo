@@ -5,29 +5,35 @@ import java.util.Map;
 import backtype.storm.Config;
 
 import com.gerken.gumbo.monitor.server.MetricsHistory;
-import com.gerken.gumbo.monitor.server.kafka.MetricsHistoryKafkaClient;
+import com.gerken.gumbo.monitor.transport.kafka.MetricsHistoryKafkaClient;
 	
 public class MetricsHistoryFactory {
 
-	public static final String PROPERTY_SERVER_KIND = "gumbo.server.kind";
-	public static final String PROPERTY_TOPOLOGY 	= "gumbo.server.key";
-	public static final String PROPERTY_ENABLED 	= "gumbo.enabled";
-	public static final String PROPERTY_START	 	= "gumbo.start";
-	public static final String PROPERTY_BUCKET_SIZE	= "gumbo.bucketsize";
-	public static final String PROPERTY_PORT	 	= "gumbo.local.port";
-	public static final String PROPERTY_DEBUG	 	= "gumbo.debug";
+	public static final String PROPERTY_SERVER_KIND 	= "gumbo.server.kind";
+	public static final String PROPERTY_TOPOLOGY 		= "gumbo.server.key";
+	public static final String PROPERTY_ENABLED 		= "gumbo.enabled";
+	public static final String PROPERTY_START	 		= "gumbo.start";
+	public static final String PROPERTY_BUCKET_SIZE		= "gumbo.bucketsize";
+	public static final String PROPERTY_PORT	 		= "gumbo.local.port";
+	public static final String PROPERTY_DEBUG	 		= "gumbo.debug";
+	public static final String PROPERTY_KAFKA_BROKERS	= "gumbo.kafka.brokers";
 	
 	public static IMetricsHistory connect(Map config) {
-		
+
+		Long start = getLong(PROPERTY_START, config, 0L);
+		Long bucketSize = getLong(PROPERTY_BUCKET_SIZE, config, 1000L);
+		int port = getInteger(PROPERTY_PORT, config, 8085);
+
 		String kind = getString(PROPERTY_SERVER_KIND, config, "local");
+
 		if ("local".equalsIgnoreCase(kind)) {
-			Long start = getLong(PROPERTY_START, config, 0L);
-			Long bucketSize = getLong(PROPERTY_BUCKET_SIZE, config, 1000L);
-			int port = getInteger(PROPERTY_PORT, config, 8085);
 			return new MetricsHistory(start,bucketSize,port);
 		}
 
-		return new MetricsHistoryKafkaClient("some kafka brokers");
+		String brokers = getString(PROPERTY_KAFKA_BROKERS, config, "localhost:9092");
+		MetricsHistoryKafkaClient client = new MetricsHistoryKafkaClient(brokers);
+		client.restart(start, bucketSize, port);
+		return client;
 	}
 	
 	public static String clientKey(Map config) {

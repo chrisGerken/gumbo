@@ -22,7 +22,7 @@ public class PathSegment {
 	private double 		angleFrom = 0.0;
 	private double 		angleTo = 0.0;
 	
-	private double			cutoverSubLevel;
+	private double		cutoverSubLevel;
 	
 	private ArrayList<WayPoint> innerPath;
 
@@ -94,6 +94,8 @@ public class PathSegment {
 				jarr.put(wp.getCoordinatesJson());
 			}
 			jobj.put("innerPath", jarr);
+//			jobj.put("angleFrom", angleFrom);
+//			jobj.put("angleTo", angleTo);
 		} catch (Throwable e) {
 			try { jobj.put("error", e.toString()); } catch (Throwable t) { }
 		}
@@ -121,7 +123,43 @@ public class PathSegment {
 			innerPath.add(to);
 		} else if (type == TYPE_LOOPBACK_TO) {
 			
+			// Layout the path for the final segment in the loopback edge.
+			// This segment ends at the "to" node
+			
+			innerPath.add(from);
+			
+			// from "from" back for 1/2 cutover sublevel
+			innerPath.add(new WayPoint(from.getDepth()-(cutoverSubLevel/2.0), from.getLeftToRight()));
+			
+			// to the midpoint between from and to, but back to cutover sublevel
+			innerPath.add(new WayPoint(from.getDepth()-cutoverSubLevel, (from.getLeftToRight()+to.getLeftToRight()) / 2.0 ));
+			
+			// same height as "to" but back by cutover sublevel
+			innerPath.add(new WayPoint(to.getDepth()-(cutoverSubLevel/2.0), to.getLeftToRight()));
+			
+			double y = from.getDepth(); 
+			
+			innerPath.add(to);
+			
 		} else if (type == TYPE_LOOPBACK_FROM) {
+			
+			// Layout the path for the first segment in the loopback edge.
+			// This segment begins at the "from" node
+			
+			innerPath.add(from);
+			
+			// from "from" back for 1/2 cutover sublevel
+			innerPath.add(new WayPoint(from.getDepth()+(cutoverSubLevel/2.0), from.getLeftToRight()));
+			
+			// to the midpoint between from and to, but back to cutover sublevel
+			innerPath.add(new WayPoint(from.getDepth()+cutoverSubLevel, (from.getLeftToRight()+to.getLeftToRight()) / 2.0 ));
+			
+			// same height as "to" but back by cutover sublevel
+			innerPath.add(new WayPoint(to.getDepth()+(cutoverSubLevel/2.0), to.getLeftToRight()));
+			
+			double y = from.getDepth(); 
+			
+			innerPath.add(to);
 			
 		} 
 	}

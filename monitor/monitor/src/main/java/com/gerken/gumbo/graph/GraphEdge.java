@@ -110,7 +110,7 @@ public class GraphEdge {
 			jarr.put(wp.getCoordinatesJson());
 		}
 		jarr.put(to.getCoordinatesJson());
-		json.put("path", jarr);
+//		json.put("path", jarr);
 
 		jarr = new JSONArray();
 		for (PathSegment segment : segments) {

@@ -369,7 +369,7 @@ public class Graph {
 				
 				json.put("created", System.currentTimeMillis());
 				
-				System.out.println(json.toString(4));
+//				System.out.println(json.toString(4));
 				
 			} catch (JSONException e) {
 			}

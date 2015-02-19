@@ -13,7 +13,7 @@ public class MetricsHistoryFactory {
 	public static final String PROPERTY_TOPOLOGY 		= "gumbo.server.key";
 	public static final String PROPERTY_ENABLED 		= "gumbo.enabled";
 	public static final String PROPERTY_START	 		= "gumbo.start";
-	public static final String PROPERTY_BUCKET_SIZE		= "gumbo.bucketsize";
+	public static final String PROPERTY_BUCKET_SIZE		= "gumbo.bucketSize";
 	public static final String PROPERTY_PORT	 		= "gumbo.local.port";
 	public static final String PROPERTY_DEBUG	 		= "gumbo.debug";
 	public static final String PROPERTY_KAFKA_BROKERS	= "gumbo.kafka.brokers";
@@ -72,6 +72,10 @@ public class MetricsHistoryFactory {
 		}
 		if (value instanceof Integer) {
 			return (Integer)value;
+		}
+		if (value instanceof Long) {
+			long l = (Long) value;
+			return (int) l;
 		}
 		if (value instanceof String) {
 			try { return Integer.parseInt((String)value); } catch (Throwable t) {  };

@@ -3,6 +3,8 @@ package com.gerken.gumbo.graph;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.codehaus.jettison.json.JSONException;
+
 public class GraphBuilder {
 
 	HashMap<String, HashSet<String>> components = new HashMap<String, HashSet<String>>();
@@ -68,8 +70,24 @@ public class GraphBuilder {
 		return gb.build();
 	}
 	
+	public static Graph graph03() {
+		GraphBuilder gb = new GraphBuilder();
+//		gb.connect("A", "B", "e1");
+//		gb.connect("B", "C", "e2");
+		gb.connect("B", "D", "e3");
+		gb.connect("B", "D", "e4");
+		gb.connect("B", "D", "e5");
+		gb.connect("B", "D", "e6");
+//		gb.connect("C", "D", "e7");
+		return gb.build();
+	}
+	
 	public static void main(String args[]) {
-		Graph g = graph02();
-		g.print();
+		try {
+			Graph g = graph03();
+			g.asJson().toString(4);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 }

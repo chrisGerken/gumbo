@@ -15,6 +15,7 @@ public class GraphEdge {
 	private boolean loopBack = false;
 	private boolean used = false;
 	private ArrayList<WayPoint> path = new ArrayList<WayPoint>();
+	private ArrayList<PathSegment>  segments = null;
 	
 	public GraphEdge(GraphNode from, GraphNode to, String stream) {
 		this.from = from;
@@ -50,6 +51,38 @@ public class GraphEdge {
 		this.used = used;
 	}
 
+	public ArrayList<PathSegment> getSegments() {
+		if (segments == null) {
+			segments = new ArrayList<PathSegment>();
+			WayPoint prev;
+			if (loopBack) {
+				prev = from.getWayPoint();
+				boolean first = true;
+				for (WayPoint wp : path) {
+					if (first) {
+						segments.add(new PathSegment(prev,wp,PathSegment.TYPE_LOOPBACK_FROM));
+					} else {
+						segments.add(new PathSegment(prev,wp,PathSegment.TYPE_NORMAL));
+					}
+					prev = wp;
+				}
+				segments.add(new PathSegment(prev,to.getWayPoint(),PathSegment.TYPE_LOOPBACK_TO));
+			} else {
+				prev = from.getWayPoint();
+				for (WayPoint wp : path) {
+					segments.add(new PathSegment(prev,wp,PathSegment.TYPE_NORMAL));
+					prev = wp;
+				}
+				segments.add(new PathSegment(prev,to.getWayPoint(),PathSegment.TYPE_NORMAL));
+			}
+			
+		}
+		return segments;
+	}
+
+	/*
+	 *  Add another way point to the path.
+	 */
 	public void addWayPoint(int x, int y) {
 		path.add(new WayPoint(x, y));
 	}
@@ -70,6 +103,7 @@ public class GraphEdge {
 		json.put("to", to.getComponent());
 		json.put("stream", stream);
 		json.put("loopBack",loopBack);
+
 		JSONArray jarr = new JSONArray();
 		jarr.put(from.getCoordinatesJson());
 		for (WayPoint wp : path) {
@@ -77,6 +111,12 @@ public class GraphEdge {
 		}
 		jarr.put(to.getCoordinatesJson());
 		json.put("path", jarr);
+
+		jarr = new JSONArray();
+		for (PathSegment segment : segments) {
+			jarr.put(segment.asJson());
+		}
+		json.put("segments", jarr);
 
 		return json;
 	}

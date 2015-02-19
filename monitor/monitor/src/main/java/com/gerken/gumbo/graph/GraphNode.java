@@ -2,6 +2,7 @@ package com.gerken.gumbo.graph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -13,8 +14,8 @@ public class GraphNode {
 	private int depth = 0;
 	private int order = 0;
 	
-	private ArrayList<GraphNode> children = new ArrayList<GraphNode>();
-	private ArrayList<GraphNode> parents = new ArrayList<GraphNode>();
+	private HashSet<GraphNode> children = new HashSet<GraphNode>();
+	private HashSet<GraphNode> parents = new HashSet<GraphNode>();
 	
 	private ArrayList<GraphEdge> inboundEdges = new ArrayList<GraphEdge>();
 	private ArrayList<GraphEdge> outboundEdges = new ArrayList<GraphEdge>();
@@ -61,7 +62,7 @@ public class GraphNode {
 		parents.addAll(nodes);
 	}
 
-	public ArrayList<GraphNode> getParents() {
+	public HashSet<GraphNode> getParents() {
 		return parents;
 	}
 
@@ -98,7 +99,13 @@ public class GraphNode {
 	}
 	
 	public boolean hasParents() {
-		return !parents.isEmpty();
+		if (parents.isEmpty()) {
+			return false;
+		}
+		if (parents.size()>1) {
+			return true;
+		}
+		return !parents.contains(this);
 	}
 
 	public boolean isParentOf(GraphNode from) {

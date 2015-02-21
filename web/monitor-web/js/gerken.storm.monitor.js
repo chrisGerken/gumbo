@@ -254,7 +254,7 @@ function topology(data,id,vertical) {
     var graph = data.graph;
     var perlevel = 45;
     var perchar  = 8;
-    var vmargin = 10;
+    var vmargin = 0;
 
 	if (!canvas.gumboMsg) {
 		canvas.gumboMsg = "";
@@ -269,11 +269,11 @@ function topology(data,id,vertical) {
 		var node = graph.nodes[i];
 
 		var x = node.location.order;
-		var y = node.location.depth * perlevel - vmargin;
+		var y = node.location.depth - vmargin;
 
 		if (!vertical) {
 			var tx = y;  
-			var ty = x + 10;
+			var ty = x ;
 			x = tx;
 			y = ty;
 		}
@@ -291,7 +291,7 @@ function topology(data,id,vertical) {
 	}
 
 	var prevwidth = ctx.lineWidth;
-	ctx.lineWidth = 3;
+	ctx.lineWidth = 2;
 	for (var i in graph.edges) {
 		var edge = graph.edges[i];
 		
@@ -306,30 +306,31 @@ function topology(data,id,vertical) {
 
 		var prevx = 0;
 		var prevy = 0;
+		var first = true;
 		
-        for (var p in edge.path) {
-        
-			var x = edge.path[p].order;
-			var y = edge.path[p].depth * perlevel - vmargin;
-
-			if (!vertical) {
-				var tx = y;  
-				var ty = x + 10;
-				x = tx;
-				y = ty;
+		var x;
+		var y;
+		var prevx;
+		var prevy;
+		
+		for (var s in edge.segments) {
+			var segment = edge.segments[s];
+			for (var ip in segment.innerPath) {
+				var wp = segment.innerPath[ip];
+				x = wp.depth;
+				y = wp.order - vmargin;
+			    if (first) {
+			    	ctx.moveTo(x,y);		    
+				    first = false;
+		    	} else {
+				    ctx.lineTo(x,y);
+					hotspots.push( { name:("Stream: "+edge.stream), x:((x+prevx)/2), y:((y+prevy)/2) } );
+		    	}
+		    	prevx = x;
+		    	prevy = y;
 			}
-        
-		    if (p > 0) {
-			    ctx.lineTo(x,y);
-				hotspots.push( { name:("Stream: "+edge.stream), x:((x+prevx)/2), y:((y+prevy)/2) } );
-		    } else {
-			    ctx.moveTo(x,y);		    
-		    }
-        	
-        	prevx = x;
-        	prevy = y;
-        	
-        }
+		
+		}
         
 		ctx.closePath();
 		ctx.stroke();

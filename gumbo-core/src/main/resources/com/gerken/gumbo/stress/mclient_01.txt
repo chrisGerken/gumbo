@@ -1,0 +1,44 @@
+node 1 M
+node 2 M
+node 3 M
+node 4 M
+
+# task 1 (Reader)
+
+# task 2 (Parser)
+
+connect 2 Reader RawThings Parser
+declare 2 Backlog  RawThings Parser  
+color 2 RawThings 250,0,0
+
+# task 3 (Parser)
+
+connect 3 Reader RawThings Parser
+declare 3 Backlog  RawThings Parser  
+color 3 RawThings 250,0,0
+
+# task 4 (Persister)
+
+connect 4 Parser ParsedThings Persister
+declare 4 Backlog  ParsedThings Persister  
+color 4 ParsedThings 0,250,0
+
+
+increments 1 10000 10  Backlog  RawThings 2 
+increments 1 15000 15  Backlog  RawThings 3 
+increment 2 1000 -1  Backlog  RawThings
+increments 2 5000 3  Backlog  ParsedThings 4 
+increment 3 1000 -1  Backlog  RawThings
+increments 3 5000 2  Backlog  ParsedThings 4 
+increment 4 1000 -1  Backlog  ParsedThings
+
+# increments : emit
+# increment : execute
+
+#  Topology:   Reader (1)  --RawThings->  Parser (2,3)  --ParsedThings->  Persister (4)
+
+
+
+
+# metricGroup: Backlog
+# metric:      stream name

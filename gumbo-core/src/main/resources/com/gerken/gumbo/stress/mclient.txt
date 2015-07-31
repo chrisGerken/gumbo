@@ -1,0 +1,13 @@
+
+
+node <task> <node>
+
+connect <task> fromComponent stream toComponent
+declare <task> metricGroup  metric toComponent  
+color <task> metric r,g,b
+
+increment <task> every amount  metricGroup  metric
+increments <task> every amount  metricGroup  metric task[]
+
+# metricGroup: Backlog
+# metric:      stream name

@@ -1,0 +1,70 @@
+<html>
+<head>
+	<script src="js/jquery.min.js" ></script>
+	<script src="js/Chart.min.js" ></script>
+	<script src="js/gerken.storm.monitor.js" ></script>
+	
+	<script type="text/javascript">
+ 
+ 		// This URL has to match storm properties:
+		//		storm.monitor.host=localhost
+		//		storm.monitor.port=8085
+ 		var metricsSourceURL = "http://localhost:8085/";
+ 	
+ 		// Default Storm monitoring provides one metrics group ("Backlog") which has a metric for each stream in the topology.
+ 		
+ 		// Modify the widgets array below to specify the kind and layout of widgets required to display the desired information.
+ 		
+ 		// All widget kinds allow for common attributes:
+ 		//    title: the displayed header for the widget
+ 		//    id:          a unique id within the page
+ 		//    kind:        the kind of widget.  One of "hist", "metricsov", "tasksov", "legend", "hotspot", "graph"
+ 		//    x:           the x coordinate of the upper left-hand side of the widget 
+ 		//    y:           the y coordinate of the upper left-hand side of the widget 
+ 		//    width:       the width of the widget
+ 		//    height:      the height of the widget
+ 		//    metricGroup: the name of the metric group whose metrics are to be displayed
+ 		
+ 		// widget kind: hist - displays a histogram of the given metrics in a group.  You can specify a subset of metrics to be displayed within the metricsGroup
+ 		// with the metrics attribute (The default is "*" for all metrics in the group).	
+ 		//		{ title: "Metric History", 	id: "backlogs", 		kind: "hist",   	x: 10,  y: 30,  width: 1150, height: 250, metricGroup: "Backlog" } ,
+
+        // widget kind: metricsov - displays a "share of voice" pie chart showing the relative values of the metrics in the metrics group.
+ 		//		{ title: "Backlogs SoV",		id: "BlogsSOV", 		kind: "metricsov", 	x: 1200, y: 30, width:  250, height: 250, metricGroup: "Backlog"} ,
+
+		// widget kind: tasksov - displays a bar graph with a bar for each task showing the portion of the overall metric value associated with that 
+		// storm component task.
+ 		//		{ title: "Some Metric",			id: "SomeTaskSov", 		kind: "tasksov", x: 10, y: 630, width:  300, height: 250, metricGroup: "Backlog", metric: "SomeMetric" } ,
+
+		// widget kind: legend - displays a list of metric names within a group along with the current value for each metric.  An indicator is also displayed to
+		// show those metrics whose values are trending higher
+		//		{ title: "Metrics", 			id: "legend", 			kind: "legend", 	x: 10, 		y: 330, width:  500, height: 250, metricGroup: "Backlog" } ,
+ 		
+ 		// widget kind: hotspots - diplays a graphical list of Storm bolts that have as input at least one backlogged stream
+		//		{ title: "Hotspots", 		    id: "hotspots", 	    kind: "hotspot",  	x: 510,  	y: 330, width: 	570, height: 600  } 
+ 		
+ 		// widget kind: topology - diplays a graphical representation of the topology of spouts, bolts and streams and indicated which streams are backlogged
+		//		{ title: "Topology", 		    id: "topology", 	    kind: "topology",  	x: 510,  	y: 330, width: 	570, height: 800  } 
+ 		  
+ 		  
+ 		var monitorConfig = {
+ 			title: "Storm Topology Monitor" ,
+ 			widgets: [
+ 		
+ 				{ title: "Stream Backlogs", 	id: "backlogs", 		kind: "hist",   	x: 10,  y: 30,  width: 1150, height: 250, metricGroup: "Backlog" } ,
+ 				{ title: "Backlogs SoV",		id: "BlogsSOV", 		kind: "metricsov", 	x: 1200, y: 30, width:  250, height: 250, metricGroup: "Backlog"} ,
+
+ 				{ title: "Streams", 			id: "legend", 			kind: "legend", 	x: 10, 		y: 330, width:  500, height: 250, metricGroup: "Backlog" } ,
+ 				{ title: "Topology", 		    id: "topology", 	    kind: "topology",  	x: 510,  	y: 330, width: 	570, height: 800  } 
+ 		
+ 				]
+ 		};
+ 
+ 		$( document ).ready(function() { monitorStorm(); });		
+
+	</script>
+</head>
+<body>
+<div id="storm-monitor" height="1000" width="1500"></div>
+</body>
+</html>

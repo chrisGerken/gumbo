@@ -4,8 +4,8 @@ import java.util.Map;
 
 import backtype.storm.Config;
 
+import com.gerken.gumbo.monitor.client.kafka.MetricsHistoryKafkaClient;
 import com.gerken.gumbo.monitor.server.MetricsHistory;
-import com.gerken.gumbo.monitor.transport.kafka.MetricsHistoryKafkaClient;
 	
 public class MetricsHistoryFactory {
 

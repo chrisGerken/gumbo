@@ -1,0 +1,14 @@
+topology.name=NewsStream
+
+gumbo.enabled=true
+gumbo.server.kind=local
+gumbo.server.key=<topology-name>
+gumbo.local.port=8085
+gumbo.kafka.brokers=localhost:9092
+gumbo.bucketSize=1000
+
+gumbo.Articles.color=250,0,0
+gumbo.FromQualities.color=0,250,0
+gumbo.HeaderBlocks.color=0,0,250
+
+gumbo.enabled=true

@@ -11,6 +11,31 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+	
+	<name>Gumbo Timers</name>
+	<description>A monitoring utility targeted for Apache Storm topologies, but which can be used independently of Storm.
+	This component contains timers useful for performance modeling and simulations</description>
+	<url>http://gerkenip.com</url>
+	<licenses>
+        <license>
+    	<name>The Apache License, Version 2.0</name>
+    	<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+  		</license>
+	</licenses>
+	<developers>
+        <developer>
+            <name>Chris Gerken</name>
+            <email>chris.gerken@gerkenip.com</email>
+            <organization>Gerken Intellectual Properties</organization>
+            <organizationUrl>http://gerkenip.com</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git@github.com:chrisgerken/gumbo.git</connection>
+        <developerConnection>scm:git:git@github.com:chrisgerken/gumbo</developerConnection>
+        <url>git@github.com:chrisgerken/gumbo.git</url>
+    </scm>
+  
     <build>
         <plugins>
             <plugin>
@@ -45,8 +70,17 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.2</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/../apidocs</outputDirectory>
+                    <reportOutputDirectory>${project.reporting.outputDirectory}/apidocs</reportOutputDirectory>
+ 
+                </configuration>
+            </plugin>
         </plugins>
-
     </build>
 
     <repositories>

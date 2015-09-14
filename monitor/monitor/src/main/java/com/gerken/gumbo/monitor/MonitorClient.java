@@ -20,7 +20,7 @@ public class MonitorClient {
 	private Long lastBucket = null;
 	
 	private HashSet<TaskKey> taskKeys = new HashSet<TaskKey>();
-	private HashMap<Integer, String> taskMeta = new HashMap<Integer, String>();
+//	private HashMap<Integer, String> taskMeta = new HashMap<Integer, String>();
 	
 	private static IMetricsHistory history;
 	private static HashMap<String, MonitorClient> clients = new HashMap<String, MonitorClient>();
@@ -48,6 +48,8 @@ public class MonitorClient {
 	}	
 
 	public void increment(String metricGroup, String metric, Long increase, Collection<Integer> ids) {
+		if (metricGroup==null) { return; }
+		if (metric==null) { return; }
 		Long bucket = getCurrentBucket();
 //		ArrayList<MetricSnaphot> snapshots = new ArrayList<MetricSnaphot>();
 		for (Integer id : ids) {
@@ -56,11 +58,17 @@ public class MonitorClient {
 	}
 
 	public void increment(String metricGroup, String metric, Long increase, Integer id) {
+		if (metricGroup==null) { return; }
+		if (metric==null) { return; }
+		if (id==null) { return; }
 		Long bucket = getCurrentBucket();
 		increment(metricGroup, metric, bucket, increase, id);
 	}
 
 	public void increment(String metricGroup, String metric, Long bucket, Long increase, Integer task) {
+		if (metricGroup==null) { return; }
+		if (metric==null) { return; }
+		if (task==null) { return; }
 	
 		TaskKey key = new TaskKey(metricGroup, metric, task);
 
@@ -108,13 +116,19 @@ public class MonitorClient {
 	
 
 	public void declare(String metricGroup, String metric, int task) {
+		if (metricGroup==null) { return; }
+		if (metric==null) { return; }
 		declare(metricGroup, metric, task, "default");
 	}
 
 	public void declare(String metricGroup, String metric, int task, String taskGroup) {
-		taskKeys.add(new TaskKey(metricGroup,metric,task));
+		if (metricGroup==null) { return; }
+		if (metric==null) { return; }
+		TaskKey key = new TaskKey(metricGroup,metric,task);
+//		if (taskKeys.contains(key)) { return; }
+		taskKeys.add(key);
 		history.declare(metricGroup, metric, task);
-		taskMeta.put(task, taskGroup);
+//		taskMeta.put(task, taskGroup);
 	}
 
 	public void topologyConnect(String fromNode, String edgeName, String toNode) {

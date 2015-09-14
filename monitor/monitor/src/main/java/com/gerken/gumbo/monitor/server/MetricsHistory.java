@@ -1,9 +1,10 @@
 package com.gerken.gumbo.monitor.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.math.stat.regression.SimpleRegression;
@@ -23,9 +24,11 @@ public class MetricsHistory implements IMetricsHistory {
 	private Long latestBucketWithData;
 
 	private HashMap<String, String> colors = new HashMap<String, String>();
-	private ArrayList<String> availableColors = colorStrings();
 	private ArrayList<MetricSnaphot> recentData = new ArrayList<MetricSnaphot>();
 	private HashMap<String, HashMap<String, HashSet<Integer>>> schema = new HashMap<String, HashMap<String,HashSet<Integer>>>();
+	private ColorGenerator colorGenerator = new ColorGenerator();
+	
+	private HashSet<String> mnames = new HashSet<String>();
 	
 	private Topology topology = new Topology();
 
@@ -69,16 +72,17 @@ public class MetricsHistory implements IMetricsHistory {
 	
 	public void setColor(String metric, String color) {
 
-		if (!colors.containsKey(metric)) {
-			colors.put(metric, color);
-			availableColors.remove(color);
-		}
+		colors.put(metric, color);
+		colorGenerator.used(color);
 	}
 	
 	private Long updateUsing(String metricGroup, String metric, Integer task, Long bucket, Long increment) {
 
+		refer(metricGroup,metric,task);
+
 		if (!colors.containsKey(metric)) {
-			colors.put(metric, availableColors.remove(0));
+			String nextColor = "0,0,0"; 
+			colors.put(metric, colorGenerator.nextColor());
 		}
 		HashMap<String, HashMap<String, HashMap<Integer, Long>>> bucketSlice = history.get(bucket);
 		if (bucketSlice == null) {
@@ -113,6 +117,23 @@ public class MetricsHistory implements IMetricsHistory {
 		}
 		
 		return taskValue;
+	}
+
+	private void refer(String metricGroup, String metric, Integer task) {
+
+		refer("mg : "+metricGroup);
+		refer("m  : "+metric);
+		refer("t  : "+task);
+		
+	}
+
+	private void refer(String key) {
+
+		if (!mnames.contains(key)) {
+			mnames.add(key);
+//			System.out.println("Reference: "+key);
+		}
+		
 	}
 
 	public JSONObject getJson() throws JSONException {
@@ -196,8 +217,13 @@ public class MetricsHistory implements IMetricsHistory {
 			jMetricGroup.put("metricGroup", metricGroup);
 
 			JSONArray jarr2 = new JSONArray();   // array of metrics
+			
+			Set<String> hs = schema.get(metricGroup).keySet();
+			String sorted[] = new String[hs.size()];
+			hs.toArray(sorted);
+			Arrays.sort(sorted);
 
-			for (String metric : schema.get(metricGroup).keySet()) {
+			for (String metric : sorted) {
 				
 				JSONObject jMetric = new JSONObject();
 				jMetric.put("metric", metric);
@@ -370,42 +396,6 @@ public class MetricsHistory implements IMetricsHistory {
 		latestBucket--;
 	}
 
-	private ArrayList<String> colorStrings() {
-		HashMap<Integer,ArrayList<String>> map = new HashMap<Integer,ArrayList<String>>();
-		
-		int max = 0;
-		int inc = 60;
-		for (int r = 0; r <= 240; r=r+inc) {
-			for (int b = 0; b <= 240; b = b+inc) {
-				for (int g = 0; g <= 240; g=g+inc) {
-					int total = r + b + g;
-					if ((total>inc*3)&(total<inc*9)) {
-						ArrayList<String> list = map.get(total);
-						if (list == null) {
-							list = new ArrayList<String>();
-							map.put(total,list);
-						}
-						list.add(String.valueOf(r)+","+String.valueOf(g)+","+String.valueOf(b));
-						if (max < total) { max = total; }
-					}
-				}
-			}
-		}
-		
-		ArrayList<String> result = new ArrayList<String>();
-		for (int i = max; i > 0; i=i-inc) {
-			if (map.containsKey(i)) {
-				for (String str : map.get(i)) {
-					result.add(str);
-				}
-			}
-		}
-		
-		result = repulse(result);
-		
-		return result;
-	}
-
 	private ArrayList<String> repulse(ArrayList<String> colors) {
 		ArrayList<String> result = new ArrayList<String>();
 		String from = colors.remove(0);
@@ -440,7 +430,11 @@ public class MetricsHistory implements IMetricsHistory {
 		return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2));
 	}
 
-	public void declare(String metricGroup, String metric, Integer task) {
+	public synchronized void declare(String metricGroup, String metric, Integer task) {
+		refer(metricGroup,metric,task);
+		if (metricGroup==null) { return; }
+		if (metric==null) { return; }
+		if (task==null) { return; }
 		HashMap<String, HashSet<Integer>> metrics = schema.get(metricGroup);
 		if (metrics==null) {
 			metrics = new HashMap<String, HashSet<Integer>>();

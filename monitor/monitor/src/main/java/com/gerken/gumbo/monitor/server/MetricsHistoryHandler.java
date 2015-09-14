@@ -25,18 +25,23 @@ public class MetricsHistoryHandler extends HandlerWrapper {
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		
-		response.setContentType("application/json");
-		response.setHeader("Access-Control-Allow-Origin", "*");
-		OutputStream os = response.getOutputStream();
-		String content = "";
 		try {
-			content = history.getJson().toString(4);
-		} catch (JSONException e) {
-			content = e.toString();
+			response.setContentType("application/json");
+			response.setHeader("Access-Control-Allow-Origin", "*");
+			OutputStream os = response.getOutputStream();
+			String content = "";
+			try {
+				content = history.getJson().toString(4);
+			} catch (JSONException e) {
+				content = e.toString();
+			}
+			os.write(content.getBytes());
+			os.close();
+			response.setStatus(200);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(200);
 		}
-		os.write(content.getBytes());
-		os.close();
-		response.setStatus(200);
 	}
 
 }

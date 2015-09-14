@@ -40,7 +40,8 @@ public class MonitorRestfulServer {
  
 			server.start();
 		} catch (Throwable e) {
-			System.out.println(e.toString());
+			e.printStackTrace();
+//			System.out.println(e.toString());
 		}
     }
 	

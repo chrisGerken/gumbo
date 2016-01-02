@@ -33,7 +33,7 @@ function hist(data,id,metricGroup,metrics) {
     	animation : false ,
     	scaleOverride : true ,
     	scaleSteps : 10 ,
-    	scaleStepWidth : max / 10 + 1 ,
+    	scaleStepWidth : floor(max / 10 + 1) ,
     	scaleStartValue : 0
     	}; 		
     new Chart(ctxLine).Line(histData, optsLine);		
@@ -77,7 +77,7 @@ function taskSoV(data,id,metricGroup,metric) {
     	animation : false ,
     	scaleOverride : true,
     	scaleSteps: 5,
-    	scaleStepWidth: max/5,
+    	scaleStepWidth: floor((max/5) + 1),
     	scaleStartValue: 0 
     	}; 		
     new Chart(ctxSoV).Bar(sovData, optsSoV);		
@@ -449,6 +449,20 @@ function success(data) {
 		}
 	}
 };
+
+function getMax( max, intervals, min) {
+
+	var top = max;
+	if (top < min) {
+	   top = min;
+	}
+	var i = top / intervals;
+	if (i > Math.floor(i)) {
+		top = Math.floor(i + 1) * intervals;
+	} 
+	return Math.floor(top);
+	
+}
 
 
 function getData() {
